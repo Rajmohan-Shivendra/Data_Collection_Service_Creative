@@ -7,7 +7,7 @@ from langchain.chains import (create_extraction_chain,
 from langchain_community.chat_models import ChatOpenAI
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
-import pandas as pd
+
 openai_model = "gpt-4o-mini-2024-07-18" # can change to gpt-4 models
 # current token limit
 token_limit = 1800
@@ -59,8 +59,3 @@ def extract(content: str, **kwargs):
     response = chain.run(content=content, schema=kwargs["schema"])
     return response
 
-def get_googleSheet(country):
-    sheet_id = '1rtm2u33CqNeBesCSVvJG73Dcwi3hEtleuiZZue0noyc'
-    sheet_name = country
-    url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}"
-    return pd.read_csv(url)

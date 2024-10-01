@@ -5,7 +5,6 @@
 from playwright.async_api import async_playwright
 from schemas import aws_review_schema as aws_rev
 from extraction_openAI import extract
-from extraction_openAI import get_googleSheet
 from scrape import ascrape_playwright
 import asyncio
 import pprint
@@ -13,6 +12,7 @@ from bs4 import BeautifulSoup
 import json
 import os
 import gzip
+import pandas as pd
 # =================================================================
 
 # Dataframe Loading
@@ -23,6 +23,15 @@ asins = df['ASIN']
 pdt_names = df['Product Name']
 sku = df['SKU']
 # ========================================
+
+# Get Google Sheets Function
+# ==========================
+def get_googleSheet(country):
+    sheet_id = '1rtm2u33CqNeBesCSVvJG73Dcwi3hEtleuiZZue0noyc'
+    sheet_name = country
+    url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}"
+    return pd.read_csv(url)
+# ==========================
 
 async def scrape_with_playwright(start_url: str,info_data: dict, **kwargs):
     global num_calls
