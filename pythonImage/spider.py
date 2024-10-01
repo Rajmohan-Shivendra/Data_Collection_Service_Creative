@@ -116,7 +116,6 @@ async def scrape_with_playwright(start_url: str,info_data: dict, **kwargs):
         os.remove(json_filename)
     # ====================================================
 
-one = 1
 # Main Script
 # ========================================================
 for base_url, asins, pdt_names, sku in zip(amazon_links, asins, pdt_names, sku):
