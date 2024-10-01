@@ -15,15 +15,6 @@ import gzip
 import pandas as pd
 # =================================================================
 
-# Dataframe Loading
-# ========================================
-df = get_googleSheet('us') #by default us
-amazon_links = df['Amazon page link']
-asins = df['ASIN']
-pdt_names = df['Product Name']
-sku = df['SKU']
-# ========================================
-
 # Get Google Sheets Function
 # ==========================
 def get_googleSheet(country):
@@ -32,6 +23,15 @@ def get_googleSheet(country):
     url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}"
     return pd.read_csv(url)
 # ==========================
+
+# Dataframe Loading
+# ========================================
+df = get_googleSheet('us') #by default us
+amazon_links = df['Amazon page link']
+asins = df['ASIN']
+pdt_names = df['Product Name']
+sku = df['SKU']
+# ========================================
 
 async def scrape_with_playwright(start_url: str,info_data: dict, **kwargs):
     global num_calls
