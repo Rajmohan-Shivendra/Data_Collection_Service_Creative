@@ -199,7 +199,7 @@ async def scrape_with_playwright(start_url: str,info_data: dict, lor: list, **kw
 
     # save overall output
     # ====================================================
-    if not lor:
+    if lor:
         save_output(lor)
     else:
         print("Unable To Extract Content from Product")
