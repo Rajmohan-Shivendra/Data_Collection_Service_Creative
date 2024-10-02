@@ -7,7 +7,7 @@ from playwright.async_api import async_playwright
 from html_chunking import get_html_chunks
 import re
 from collections import Counter
-max_tokens = 2000
+max_tokens = 100000
 # =================================================================
 
 def optimal_tag_finder_v1(page_source):

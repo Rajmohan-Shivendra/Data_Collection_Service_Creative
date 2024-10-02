@@ -44,6 +44,10 @@ chat_prompt = PromptTemplate(
                 ###
                 Please ensure that all relevant details are included without interruption.
                 ###
+            5.
+                ###
+                ONLY TAKE REVIEWS REVIEWED IN THE UNITED STATES (US) IGNORE THE OTHER COUNTRIES
+                ###
             Format the extracted reviews as JSON. Here is the web content to analyze:
             ###
             {content}

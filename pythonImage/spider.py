@@ -60,8 +60,9 @@ sku = df['SKU']
 # Data Processing/Cleaning
 # ========================================
 def data_cleaning(extracted_content, html_content:str, **kwargs):
-    max_retries = 3
+    max_retries = 1
     retries = 0
+    cleaned_content = None
 
     while retries < max_retries:
         try:
@@ -95,6 +96,7 @@ def data_cleaning(extracted_content, html_content:str, **kwargs):
             break  # Break the loop on unexpected errors
 
     print("Max retries reached. Could not process the content.")
+    print("Extracting data at hand....")
     return None  # Return None or handle the failure case as needed
 # ========================================
 
