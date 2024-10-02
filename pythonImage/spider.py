@@ -34,7 +34,6 @@ sku = df['SKU']
 # ========================================
 
 async def scrape_with_playwright(start_url: str,info_data: dict, **kwargs):
-    global num_calls
     list_of_reviews = []
     async with async_playwright() as p:
 
