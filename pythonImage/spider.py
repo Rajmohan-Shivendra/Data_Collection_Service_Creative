@@ -148,7 +148,7 @@ async def scrape_with_playwright(start_url: str,info_data: dict, lor: list, **kw
                 for review in reviews:
                     review_id = review["Reviewer's ID"]
                     parts = review_id.split('-')
-                    review["Reviewer's ID"] = f"{parts[1]}"
+                    review["Reviewer's ID"] = f"{parts[-1]}"
                     review["Customer Reivew Link"] = f"https://www.amazon.com/product-review/{parts[1]}"
                     review['Reviewer Link'] = f"https://www.amazon.com{review['Reviewer Link'].rstrip('.')}"
                     review['Info'] = info_data
@@ -164,16 +164,16 @@ async def scrape_with_playwright(start_url: str,info_data: dict, lor: list, **kw
 
                 # Variables for Paginiton
                 # =======================
-                max_pages = 3
+                max_pages = 2
                 page_count = 1
                 # =======================
 
                 soup = BeautifulSoup(page_source, 'html.parser')
                 next_button = soup.select_one('li.a-last a')
                 print(next_button)
-                if page_count > max_pages:
-                    # limit to only scrape a maximum of 3 pages per product
-                    print("Max 3 Pages Scraped")
+                if page_count >= max_pages:
+                    # limit to only scrape a maximum of 2 pages per product
+                    print("Max 2 Pages Scraped")
                     break
                 else:
                     if next_button and 'href' in next_button.attrs:
@@ -185,6 +185,10 @@ async def scrape_with_playwright(start_url: str,info_data: dict, lor: list, **kw
                         print("------------")
                         time.sleep(30)
                         page_count = page_count + 1
+                        if page_count >= max_pages:
+                            # limit to only scrape a maximum of 2 pages per product
+                            print("Max 2 Pages Scraped")
+                            break
                     else:
                         # No more pages to scrape, break the loop
                         print("No more pages to scrape.")
@@ -230,5 +234,5 @@ for base_url, asins, pdt_names, sku in zip(amazon_links, asins, pdt_names, sku):
         schema=aws_rev
     ))
 
-    break
+    # break
 # ========================================================
