@@ -10,7 +10,7 @@ from langchain.chains import LLMChain
 
 openai_model = "gpt-4o-mini-2024-07-18" # can change to gpt-4 models
 # current token limit
-token_limit = 1800
+token_limit = 2000
 # =================================================================
 
 load_dotenv()
@@ -40,6 +40,10 @@ chat_prompt = PromptTemplate(
                ###
                DO NOT CREATE YOUR OWN INPUTS (IMPORTANT!!).
                ###
+            4. 
+                ###
+                Please ensure that all relevant details are included without interruption.
+                ###
             Format the extracted reviews as JSON. Here is the web content to analyze:
             ###
             {content}

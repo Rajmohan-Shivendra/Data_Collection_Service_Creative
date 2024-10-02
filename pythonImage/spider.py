@@ -14,6 +14,7 @@ import os
 import gzip
 import pandas as pd
 from datetime import datetime
+import time
 # =================================================================
 
 # Get Google Sheets Function
@@ -56,6 +57,47 @@ pdt_names = df['Product Name']
 sku = df['SKU']
 # ========================================
 
+# Data Processing/Cleaning
+# ========================================
+def data_cleaning(extracted_content, html_content:str, **kwargs):
+    max_retries = 3
+    retries = 0
+
+    while retries < max_retries:
+        try:
+            cleaned_content = extracted_content.strip("()").strip("`").replace("json\n", "")
+            print()
+            print("Cleaned Content")
+            print("---------------")
+            print(cleaned_content)
+            print("---------------")
+            print()
+
+            reviews = json.loads(cleaned_content)
+            return reviews  # Return the reviews if successful
+
+        except json.JSONDecodeError as e:
+            print(f"Error decoding JSON: {e}")
+            retries += 1
+            print(f"Retrying {retries}/{max_retries}...")
+            print()
+            print("Extracting content")
+            print("----------------------")
+            print()
+            extracted_content = extract(**kwargs,
+                                        content=html_content)
+            pprint.pprint(extracted_content)
+            print()
+            print("-----------------------")
+
+        except Exception as e:
+            print(f"An unexpected error occurred: {e}")
+            break  # Break the loop on unexpected errors
+
+    print("Max retries reached. Could not process the content.")
+    return None  # Return None or handle the failure case as needed
+# ========================================
+
 async def scrape_with_playwright(start_url: str,info_data: dict, lor: list, **kwargs):
     
     if lor is None:
@@ -63,12 +105,17 @@ async def scrape_with_playwright(start_url: str,info_data: dict, lor: list, **kw
 
     async with async_playwright() as p:
 
+        custom_headers = {
+            'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/28.0.1500.52 Safari/537.36',
+        }
+
         browser = await p.chromium.launch(headless=True)
         page = await browser.new_page()
+        await page.set_extra_http_headers(custom_headers)
         url = start_url
 
         while True:
-            await page.goto(url, wait_until='networkidle')
+            await page.goto(url, wait_until='domcontentloaded')
             page_source = await page.content()
             html_content= await ascrape_playwright(page_source)#, tags)
  
@@ -93,50 +140,65 @@ async def scrape_with_playwright(start_url: str,info_data: dict, lor: list, **kw
             print("-----------------------")
             # break
             
-            # saving content as json
+            # Cleaning Content
             # ==============================================================================
-            cleaned_content = extracted_content.strip("()").strip("`").replace("json\n", "")
-            # print(cleaned_content)
-            reviews = json.loads(cleaned_content)
+            reviews = data_cleaning(extracted_content, html_content, **kwargs)
 
-            for review in reviews:
-                review_id = review["Reviewer's ID"]
-                parts = review_id.split('-')
-                review["Reviewer's ID"] = f"{parts[1]}"
-                review["Customer Reivew Link"] = f"https://www.amazon.com/product-review/{parts[1]}"
-                review['Reviewer Link'] = f"https://www.amazon.com{review['Reviewer Link'].rstrip('.')}"
-                review['Info'] = info_data
+            if reviews != None:
+                for review in reviews:
+                    review_id = review["Reviewer's ID"]
+                    parts = review_id.split('-')
+                    review["Reviewer's ID"] = f"{parts[1]}"
+                    review["Customer Reivew Link"] = f"https://www.amazon.com/product-review/{parts[1]}"
+                    review['Reviewer Link'] = f"https://www.amazon.com{review['Reviewer Link'].rstrip('.')}"
+                    review['Info'] = info_data
 
-            lor.extend(reviews)
-            # json_output = json.dumps(reviews, indent=4)
+                lor.extend(reviews)
+            else:
+                pass #move on to paginition, will skip review of this page
 
             # ==============================================================================
-            break
             # Paginition (Works)
             # ==============================================================================
             async with async_playwright() as p:
+
+                # Variables for Paginiton
+                # =======================
+                max_pages = 3
+                page_count = 1
+                # =======================
+
                 soup = BeautifulSoup(page_source, 'html.parser')
                 next_button = soup.select_one('li.a-last a')
                 print(next_button)
-                if next_button and 'href' in next_button.attrs:
-                    next_page_url = 'https://www.amazon.com' + next_button['href']
-                    url = next_page_url 
-                    print("URL PRINTING")
-                    print("------------")
-                    print(url)
-                    print("------------")
-                    time.sleep(30)
-                else:
-                    # No more pages to scrape, break the loop
-                    print("No more pages to scrape.")
+                if page_count > max_pages:
+                    # limit to only scrape a maximum of 3 pages per product
+                    print("Max 3 Pages Scraped")
                     break
+                else:
+                    if next_button and 'href' in next_button.attrs:
+                        next_page_url = 'https://www.amazon.com' + next_button['href']
+                        url = next_page_url 
+                        print("URL PRINTING")
+                        print("------------")
+                        print(url)
+                        print("------------")
+                        time.sleep(30)
+                        page_count = page_count + 1
+                    else:
+                        # No more pages to scrape, break the loop
+                        print("No more pages to scrape.")
+                        break
             # ==============================================================================
 
         await browser.close()
 
     # save overall output
     # ====================================================
-    save_output(lor)
+    if not lor:
+        save_output(lor)
+    else:
+        print("Unable To Extract Content from Product")
     # ====================================================
 
 # Main Script
