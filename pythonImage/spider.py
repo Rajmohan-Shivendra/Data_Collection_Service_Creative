@@ -13,6 +13,7 @@ import json
 import os
 import gzip
 import pandas as pd
+from datetime import datetime
 # =================================================================
 
 # Get Google Sheets Function
@@ -24,6 +25,28 @@ def get_googleSheet(country):
     return pd.read_csv(url)
 # ==========================
 
+# Save Output Function
+# ========================================================================
+def save_output(lor:list):
+    asin = lor[0].get("Info", {}).get("info", {}).get("asin")
+    print(asin)
+    print(lor[0])
+    output_dir = f"/output/amz-us-reviews/dd={datetime.now().day}" # by default us
+    os.makedirs(output_dir, exist_ok=True)  # Create directory if it doesn't exist
+    json_filename = os.path.join(output_dir, f"{asin}.json")
+    gz_filename = os.path.join(output_dir, f"{asin}.json.gz")
+    # save as .json
+    with open(json_filename, 'w', encoding='utf-8') as json_file:
+        json.dump(lor, json_file, indent=1)
+    # compress .json file into .gz file
+    with open(json_filename, 'rb') as json_file:
+        with gzip.open(gz_filename, 'wb') as gz_file:
+            gz_file.writelines(json_file)
+    # Remove the uncompressed .json file | Cleanup
+    os.remove(json_filename)
+# ========================================================================
+
+
 # Dataframe Loading
 # ========================================
 df = get_googleSheet('us') #by default us
@@ -33,8 +56,11 @@ pdt_names = df['Product Name']
 sku = df['SKU']
 # ========================================
 
-async def scrape_with_playwright(start_url: str,info_data: dict, **kwargs):
-    list_of_reviews = []
+async def scrape_with_playwright(start_url: str,info_data: dict, lor: list, **kwargs):
+    
+    if lor is None:
+            lor = []
+
     async with async_playwright() as p:
 
         browser = await p.chromium.launch(headless=True)
@@ -81,7 +107,7 @@ async def scrape_with_playwright(start_url: str,info_data: dict, **kwargs):
                 review['Reviewer Link'] = f"https://www.amazon.com{review['Reviewer Link'].rstrip('.')}"
                 review['Info'] = info_data
 
-            list_of_reviews.extend(reviews)
+            lor.extend(reviews)
             # json_output = json.dumps(reviews, indent=4)
 
             # ==============================================================================
@@ -110,23 +136,14 @@ async def scrape_with_playwright(start_url: str,info_data: dict, **kwargs):
 
     # save overall output
     # ====================================================
-    output_dir = "/output/amz-us-reviews" # by default us
-    # output_dir = "C:\Polytechnic_web_crawler_with_docker"
-    os.makedirs(output_dir, exist_ok=True)  # Create directory if it doesn't exist
-    for index, review in enumerate(list_of_reviews):
-        json_filename = os.path.join(output_dir, f"review_{index + 1}.json") #f"{review['Info']['asin']}_{index + 1}.json"
-        gz_filename = os.path.join(output_dir, f"review_{index + 1}.json.gz")
-        with open(json_filename, 'w', encoding='utf-8') as json_file:
-            json.dump(review, json_file, indent=4)
-        with open(json_filename, 'rb') as json_file:
-            with gzip.open(gz_filename, 'wb') as gz_file:
-                gz_file.writelines(json_file)
-        os.remove(json_filename)
+    save_output(lor)
     # ====================================================
 
 # Main Script
 # ========================================================
 for base_url, asins, pdt_names, sku in zip(amazon_links, asins, pdt_names, sku):
+    lor = [] # list of reviews
+
     # base_url can be used for product scarping (pdt_url)
     # assuming us is always chosen can modify later
     review_url = "https://www.amazon.com/product-reviews/" + asins + "?pageNumber=1&sortBy=recent&formatType=current_format"
@@ -145,9 +162,9 @@ for base_url, asins, pdt_names, sku in zip(amazon_links, asins, pdt_names, sku):
     }
 
     asyncio.run(scrape_with_playwright(
-        start_url=review_url,
+        start_url = review_url,
         info_data = info_data,
-        # tags=["span", "a"],
+        lor = lor,
         schema=aws_rev
     ))
 
