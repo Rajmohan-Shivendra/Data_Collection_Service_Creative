@@ -166,7 +166,7 @@ async def ascrape_playwright(page_source) -> str:
             for tag in customer_review_tags:
                 if 'id' in tag.attrs:
                     review_id = tag['id']                    
-                    # Create a new <span> element
+                    # Create a new <tag> element with the optimal tag
                     new_tag = soup.new_tag(f'{optimal_tag}')
                     new_tag.string = f'customer_review-{review_id}'           
                     # Insert the <new_tag> before the current tag
