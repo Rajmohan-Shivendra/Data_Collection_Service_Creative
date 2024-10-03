@@ -128,6 +128,23 @@ def extract_tags(html_content, tags: list[str]):
     return ' '.join(text_parts)
 
 
+def extract_tags_with_html(html_content, tags: list[str]):
+    """
+    This function takes in HTML content and a list of tags, and returns a string
+    containing the HTML content of all elements with those tags.
+    If the tag is an "a" tag, it also includes the 'href' attribute in the HTML.
+    """
+    soup = BeautifulSoup(html_content, 'html.parser')
+    html_parts = []
+
+    for tag in tags:
+        elements = soup.find_all(tag)
+        for element in elements:
+            html_parts.append(str(element))  # Convert the element to a string (including the HTML tag and content)
+
+    return '\n'.join(html_parts) 
+
+
 async def ascrape_playwright(page_source) -> str:
     """
     An asynchronous Python function that uses Playwright to scrape
@@ -174,7 +191,7 @@ async def ascrape_playwright(page_source) -> str:
 
             filtered_chunks.append(str(soup))
 
-        extracted_content = [extract_tags(chunk, tags) for chunk in filtered_chunks]
+        extracted_content = [extract_tags_with_html(chunk, tags) for chunk in filtered_chunks]
 
         results = ' '.join(extracted_content)
         # results = '\n'.join(set(results.split('\n'))) # to remove duplicates (if any)

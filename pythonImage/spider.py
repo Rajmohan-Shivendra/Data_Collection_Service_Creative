@@ -4,7 +4,7 @@
 # =================================================================
 from playwright.async_api import async_playwright
 from schemas import aws_review_schema as aws_rev
-from extraction_openAI import extract
+from extraction_openAI import run_extraction
 from scrape import ascrape_playwright
 import asyncio
 import pprint
@@ -85,7 +85,7 @@ def data_cleaning(extracted_content, html_content:str, **kwargs):
             print("Extracting content")
             print("----------------------")
             print()
-            extracted_content = extract(**kwargs,
+            extracted_content = run_extraction(**kwargs,
                                         content=html_content)
             pprint.pprint(extracted_content)
             print()
@@ -135,12 +135,12 @@ async def scrape_with_playwright(start_url: str,info_data: dict, lor: list, **kw
             print("Extracting content")
             print("----------------------")
             print()
-            extracted_content = extract(**kwargs,
+            extracted_content = run_extraction(**kwargs,
                                         content=html_content)
             pprint.pprint(extracted_content)
             print()
             print("-----------------------")
-            # break
+            break
             
             # Cleaning Content
             # ==============================================================================
