@@ -1,4 +1,4 @@
-FROM python
+FROM python:3.11
 WORKDIR /spider
 
 # Install system dependencies for Playwright
@@ -32,4 +32,3 @@ RUN playwright install
 RUN pip install lxml
 
 CMD ["python","spider.py"]
-

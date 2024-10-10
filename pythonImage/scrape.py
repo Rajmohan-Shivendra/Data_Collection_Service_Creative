@@ -76,7 +76,7 @@ def optimal_tag_finder_v1(page_source):
     # tags = list(tag_count_dict.keys())
     # counts = list(tag_count_dict.values)
     sorted_tags = sorted(tag_count_dict.items(), key=lambda item: item[1], reverse=True)
-    container_tags = ['div', 'section', 'footer']
+    container_tags = ['div','section', 'footer']
     for tag, count in sorted_tags:
         if tag in container_tags:
             continue 
@@ -128,22 +128,112 @@ def extract_tags(html_content, tags: list[str]):
     return ' '.join(text_parts)
 
 
+# def extract_tags_with_html(html_content, tags: list[str]):
+#     """
+#     This function takes in HTML content and a list of tags, and returns a string
+#     containing the HTML content of all elements with those tags.
+#     If the tag is an "a" tag, it also includes the 'href' attribute in the HTML.
+#     """
+#     soup = BeautifulSoup(html_content, 'html.parser')
+#     html_parts = []
+
+#     for tag in tags:
+#         elements = soup.find_all(tag)
+#         for element in elements:
+#             html_parts.append(str(element))  # Convert the element to a string (including the HTML tag and content)
+
+#     return '\n'.join(html_parts) 
+
+
+
+def contains_unwanted_keywords(id_or_class: str) -> bool:
+    unwanted_keywords = ['row','column','nav', 'footer', 'header', 'shortcut',
+                         'spacing','button','a-list-item','a-color-state','cr',
+                         'block','declarative','disabled','vote']
+    return any(keyword in id_or_class for keyword in unwanted_keywords)
+
+def is_too_complex(element) -> bool:
+    """Check if the element has too many attributes or long attributes."""
+    max_attributes = 5  # Set a threshold for the number of attributes
+    max_length = 300  # Set a threshold for the total length of attribute strings
+    attributes = element.attrs
+    if len(attributes) > max_attributes:
+        print(attributes)
+        return True
+    total_length = sum(len(f"{key}={value}") for key, value in attributes.items())
+    return total_length > max_length
+
 def extract_tags_with_html(html_content, tags: list[str]):
     """
-    This function takes in HTML content and a list of tags, and returns a string
-    containing the HTML content of all elements with those tags.
-    If the tag is an "a" tag, it also includes the 'href' attribute in the HTML.
+    This function takes HTML content and a list of tags, 
+    returning the HTML for those tags. 
+    It includes the parent tag's 
+    id/class, removes empty tags, skips unwanted 
+    tags with certain IDs or
+    classes, and filters out overly complex elements.
     """
     soup = BeautifulSoup(html_content, 'html.parser')
     html_parts = []
+    pattern = r"Reviewed in the United States on \w+ \d{1,2}, \d{4}"
 
     for tag in tags:
         elements = soup.find_all(tag)
         for element in elements:
-            html_parts.append(str(element))  # Convert the element to a string (including the HTML tag and content)
 
-    return '\n'.join(html_parts) 
+            if tag == 'a':
+                # print("a has been found")
+                href = element.get('href', '')
+                # Ensure href is captured before potentially filtering out
+                new_tag = f'<{tag} href="{href}">{element_text}</{tag}>'
+                html_parts.append(new_tag)
+                continue
 
+            if is_too_complex(element):
+                continue
+
+            element_text = element.get_text(strip=True)
+
+            if not element_text:  
+                continue
+
+            parent = element.parent
+            parent_id = parent.get('id', '')
+            parent_data_hook = parent.get('data-hook',[])
+            parent_class = parent.get('class', [])
+
+            # Skip if parent ID or any class contains unwanted keywords
+            if contains_unwanted_keywords(parent_id) or \
+               any(contains_unwanted_keywords(cls) for cls in parent_class):
+                continue
+
+            # Skip specific unwanted spans based on content
+            if ((element_text in ['5 star', '4 star', '3 star', '2 star', '1 star'] or
+                 element_text.endswith('%'))):
+                continue
+            
+            if re.search(pattern, element_text):# to find review dates
+                 new_tag = f'<{tag} id="review-date">{element_text}</{tag}>'
+                 html_parts.append(new_tag)
+                 continue
+
+            if parent_data_hook:
+                new_tag = f'<{tag} id="{parent_data_hook}">{element_text}</{tag}>'
+            elif parent_id:
+                new_tag = f'<{tag} id="{parent_id}">{element_text}</{tag}>'
+            elif parent_class:
+                parent_class_str = ' '.join(parent_class)
+                new_tag = f'<{tag} class="{parent_class_str}">{element_text}</{tag}>'
+            else:
+                new_tag = str(element)
+            html_parts.append(new_tag)
+
+    return '\n'.join(html_parts)
+
+def remove_tags_with_attribute(soup: BeautifulSoup, keywords: list[str]):
+    tags_to_remove = soup.find_all(lambda tag: tag.name and
+                                     any(keyword.lower() in str(value).lower() for value in tag.attrs.values() for keyword in keywords))
+    for tag in tags_to_remove:
+        tag.decompose()
 
 async def ascrape_playwright(page_source) -> str:
     """
@@ -163,9 +253,14 @@ async def ascrape_playwright(page_source) -> str:
     print("=================================")
 
     try:
+        # Only use the Body contents of the html page
+        soup = BeautifulSoup(page_source, 'html.parser')
+        remove_tags_with_attribute(soup, ['cm_cr-rvw_summary','a-list-item','a-color-state','cr-product-byline'])
+        page_source = str(soup.body)
+
         # Chunking and Processing the html content | Max_Tokens is 2000
         # ===================================================================
-        chunks = get_html_chunks(page_source, max_tokens, is_clean_html=True)
+        chunks = get_html_chunks(page_source, max_tokens, is_clean_html=True,attr_cutoff_len=54)
 
         # ===================================================================
         # Removal of other a tags other than the reviewer's profile link ones
@@ -178,6 +273,9 @@ async def ascrape_playwright(page_source) -> str:
                 for a_tag in soup.find_all('a'):
                     if 'a-profile' not in a_tag.get('class', []) and 'review-title' not in a_tag.get('class', []):
                         a_tag.decompose() # Remove <a> tags without 'a-profile' class
+                        print()
+                        # print(a_tag)
+                        print()
             else:pass
 
             for tag in customer_review_tags:
@@ -185,6 +283,7 @@ async def ascrape_playwright(page_source) -> str:
                     review_id = tag['id']                    
                     # Create a new <tag> element with the optimal tag
                     new_tag = soup.new_tag(f'{optimal_tag}')
+                    new_tag['id'] = f'customer_review-{review_id}'
                     new_tag.string = f'customer_review-{review_id}'           
                     # Insert the <new_tag> before the current tag
                     tag.insert_before(new_tag)
@@ -196,6 +295,15 @@ async def ascrape_playwright(page_source) -> str:
         results = ' '.join(extracted_content)
         # results = '\n'.join(set(results.split('\n'))) # to remove duplicates (if any)
         results = re.sub(r'\n+', '\n', results).strip()
+        # Writing HTML Contents to a .txt file
+        # ====================================================================
+        file_path = "/output/html_content.txt"
+
+        with open(file_path, 'w') as file:
+            file.write(results)
+
+        print(f"Results have been written to {file_path}")
+        # ====================================================================
         # ====================================================================
         print("Content scraped")
     except Exception as e:
