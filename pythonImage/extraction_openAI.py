@@ -97,11 +97,14 @@ chat_prompt = PromptTemplate(
                raw html:
                ###
                <span id='23'>Reviewer Name</span>
+               <span id="review-star-rating">5.0 out of 5 stars</span>
+               <span id="review-star-rating">4.0 out of 5 stars</span>
                <a href="/gp/profile/amzn1.account.AFBV7XP2FAZDLG...">© 1996-2024, Amazon.com, Inc. or its affiliates</a>
                <a href="/gp/customer-reviews/R2DHJQG70ZXGV2/ref=cm_cr_arp_d_rv..."></a>
                <span id='review-date'>Reviewed in the United States on January 18, 2021</span>
                <span id='customer_review_foreign-R1I17YBKE584OK'>Reviewed in Mexico on Feb 11, 2021</span>
                <span id='review-date'>Reviewed in the United States on Feb 21, 2021</span>
+               <span id="cmps-review-star-rating">4.0 out of 5 stars</span>
                ###
 
                dictionary:
@@ -110,6 +113,10 @@ chat_prompt = PromptTemplate(
                     'Reviewer Name': (
                         'tag': 'span',
                         'selector': ('id': '23')
+                    ),
+                    'Review Rating': (
+                        'tag': 'span',
+                        'selector': ('id': 'review-star-rating')
                     ),
                     'Reviewer Amazon Account': (
                         'tag': 'a',
@@ -127,7 +134,8 @@ chat_prompt = PromptTemplate(
                 ###
 
                 ** FROM THE PREVIOUS EXAMPLE, ONE KEY OBSERVATION IS THE NEED TO UNDERSTAND THE SPECIFIC REQUIREMENTS FOR 'Review Date.' IT IS IMPORTANT TO ENSURE THAT WE CAPTURE ONLY VALID IDs, EXCLUDING ANY IDs THAT ARE OVERLY UNIQUE OR IRRELEVANT TO THE INTENDED FILTERING PROCESS. **
-                
+                ** FURTHERMOR, SIMILAR FOR 'Review Date', FOR 'Review Rating' THE SAME CONTEXT HAS TO BE FOLLOWED, STUDY THE HTML CAREFULLY. ** 
+
                 in the dictionary, the 'id' may not always be an id, it may be a class, href_contains, or even a data-hook.
                 ### YOUR JOB IS TO FIND THESE PATTERNS OR CHANGES AND UPDATE THE DICTIONARY!! ###
 

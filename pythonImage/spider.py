@@ -448,6 +448,11 @@ async def scrape_with_playwright(start_url: str,info_data: dict, lor: list, **kw
 # Main Script
 # ========================================================
 for base_url, asins, pdt_names, sku in zip(amazon_links, asins, pdt_names, sku):
+
+    custom_headers = {
+        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/28.0.1500.52 Safari/537.36',
+    }
+
     max_pages = 2
     page_count = 1
     lor = [] # list of reviews
@@ -469,22 +474,26 @@ for base_url, asins, pdt_names, sku in zip(amazon_links, asins, pdt_names, sku):
         print(f"Going to Page {page_count}...")
         print()
         # base_url can be used for product scarping (pdt_url)
-        # assuming us is always chosen can modify later
-        review_url = f"https://www.amazon.com/product-reviews/" + asins + f"?pageNumber={page_count}&sortBy=recent&formatType=current_format"
-        page = requests.get(review_url)
+        page = requests.get(base_url,headers=custom_headers)
         if page.status_code == 200:
+            print(f"Page is accessible for {base_url}")
+            # assuming us is always chosen can modify later
+            review_url = f"https://www.amazon.com/product-reviews/" + asins + f"?pageNumber={page_count}&sortBy=recent&formatType=current_format"
             print("Scraping from url: " + base_url)
             print(f"Entering URL - {review_url}")
-            asyncio.run(scrape_with_playwright(
-                start_url = review_url,
-                info_data = info_data,
-                lor = lor,
-                schema=aws_rev
-            ))
+            try:
+                asyncio.run(scrape_with_playwright(
+                    start_url = review_url,
+                    info_data = info_data,
+                    lor = lor,
+                    schema=aws_rev
+                ))
+            except Exception as e:
+                print(f"An error was caught: {e}")
             page_count = page_count + 1
             time.sleep(30) # wait for 30 seconds
         else:
-            print(f"{review_url}")
+            print(f"Unable to access URL - {base_url}")
             time.sleep(30) # wait for 30 seconds
 
     # break
