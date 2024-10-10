@@ -17,6 +17,7 @@ from datetime import datetime
 import time
 import re
 import ast
+import requests
 # =================================================================
 
 # Get Google Sheets Function
@@ -315,7 +316,6 @@ async def scrape_with_playwright(start_url: str,info_data: dict, lor: list, **kw
 
             # Removal of duplicated instances (if any)
             # ======================================================
-            reviewer_names = remove_duplicates(reviewer_names)
             reviewer_ids = remove_duplicates(reviewer_ids)
             review_titles = remove_duplicates(review_titles)
             reviewer_accounts = remove_duplicates(reviewer_accounts)
@@ -471,16 +471,21 @@ for base_url, asins, pdt_names, sku in zip(amazon_links, asins, pdt_names, sku):
         # base_url can be used for product scarping (pdt_url)
         # assuming us is always chosen can modify later
         review_url = f"https://www.amazon.com/product-reviews/" + asins + f"?pageNumber={page_count}&sortBy=recent&formatType=current_format"
-        print("Scraping from url: " + base_url)
-        print(f"Entering URL - {review_url}")
-        asyncio.run(scrape_with_playwright(
-            start_url = review_url,
-            info_data = info_data,
-            lor = lor,
-            schema=aws_rev
-        ))
-        page_count = page_count + 1
-        time.sleep(30) # wait for 30 seconds
+        page = requests.get(review_url)
+        if page.status_code == 200:
+            print("Scraping from url: " + base_url)
+            print(f"Entering URL - {review_url}")
+            asyncio.run(scrape_with_playwright(
+                start_url = review_url,
+                info_data = info_data,
+                lor = lor,
+                schema=aws_rev
+            ))
+            page_count = page_count + 1
+            time.sleep(30) # wait for 30 seconds
+        else:
+            print(f"{review_url}")
+            time.sleep(30) # wait for 30 seconds
 
-    break
+    # break
 # ========================================================
