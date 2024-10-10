@@ -268,25 +268,25 @@ async def ascrape_playwright(page_source) -> str:
         filtered_chunks = [] #chunks
         for chunk in chunks:
             soup = BeautifulSoup(chunk, 'html.parser')
-            customer_review_tags = soup.find_all(lambda tag: 'customer_review' in (tag.get('id', '') + ' '.join(tag.get('class', []))))
-            if 'a' in tags:
-                for a_tag in soup.find_all('a'):
-                    if 'a-profile' not in a_tag.get('class', []) and 'review-title' not in a_tag.get('class', []):
-                        a_tag.decompose() # Remove <a> tags without 'a-profile' class
-                        print()
-                        # print(a_tag)
-                        print()
-            else:pass
+            # customer_review_tags = soup.find_all(lambda tag: 'customer_review' in (tag.get('id', '') + ' '.join(tag.get('class', []))))
+            # if 'a' in tags:
+            #     for a_tag in soup.find_all('a'):
+            #         if 'a-profile' not in a_tag.get('class', []) and 'review-title' not in a_tag.get('class', []):
+            #             a_tag.decompose() # Remove <a> tags without 'a-profile' class
+            #             print()
+            #             # print(a_tag)
+            #             print()
+            # else:pass
 
-            for tag in customer_review_tags:
-                if 'id' in tag.attrs:
-                    review_id = tag['id']                    
-                    # Create a new <tag> element with the optimal tag
-                    new_tag = soup.new_tag(f'{optimal_tag}')
-                    new_tag['id'] = f'customer_review-{review_id}'
-                    new_tag.string = f'customer_review-{review_id}'           
-                    # Insert the <new_tag> before the current tag
-                    tag.insert_before(new_tag)
+            # for tag in customer_review_tags:
+            #     if 'id' in tag.attrs:
+            #         review_id = tag['id']                    
+            #         # Create a new <tag> element with the optimal tag
+            #         new_tag = soup.new_tag(f'{optimal_tag}')
+            #         new_tag['id'] = f'customer_review-{review_id}'
+            #         new_tag.string = f'customer_review-{review_id}'           
+            #         # Insert the <new_tag> before the current tag
+            #         tag.insert_before(new_tag)
 
             filtered_chunks.append(str(soup))
 

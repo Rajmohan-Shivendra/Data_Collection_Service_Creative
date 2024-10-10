@@ -482,5 +482,5 @@ for base_url, asins, pdt_names, sku in zip(amazon_links, asins, pdt_names, sku):
         page_count = page_count + 1
         time.sleep(30) # wait for 30 seconds
 
-    # break
+    break
 # ========================================================
