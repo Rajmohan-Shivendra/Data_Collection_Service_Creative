@@ -65,49 +65,10 @@ pdt_names = df['Product Name']
 sku = df['SKU']
 # ========================================
 
-# Data Processing/Cleaning
+
+
+# Removing Duplicated Data from List
 # ========================================
-def data_cleaning(extracted_content, html_content:str, **kwargs):
-    max_retries = 1
-    retries = 0
-    cleaned_content = None
-
-    while retries < max_retries:
-        try:
-            cleaned_content = extracted_content.strip("()").strip("`").replace("json\n", "")
-            print()
-            print("Cleaned Content")
-            print("---------------")
-            print(cleaned_content)
-            print("---------------")
-            print()
-
-            reviews = json.loads(cleaned_content)
-            return reviews  # Return the reviews if successful
-
-        except json.JSONDecodeError as e:
-            print(f"Error decoding JSON: {e}")
-            retries += 1
-            print(f"Retrying {retries}/{max_retries}...")
-            print()
-            print("Extracting content")
-            print("----------------------")
-            print()
-            extracted_content = main_dict_changes(**kwargs,
-                                        content=html_content)
-            pprint.pprint(extracted_content)
-            print()
-            print("-----------------------")
-
-        except Exception as e:
-            print(f"An unexpected error occurred: {e}")
-            break  # Break the loop on unexpected errors
-
-    print("Max retries reached. Could not process the content.")
-    print("Extracting data at hand....")
-    return None  # Return None or handle the failure case as needed
-# ========================================
-
 def remove_duplicates(lst):
     seen = set()
     result = []
@@ -116,7 +77,11 @@ def remove_duplicates(lst):
             result.append(item)
             seen.add(item)
     return result
+# ========================================
 
+
+# Extraction of Review Data frm Dictionary
+# ========================================
 def extract_review_data(soup: BeautifulSoup, data_dict: dict):
 
     extracted_data = {
@@ -238,6 +203,9 @@ def extract_review_data(soup: BeautifulSoup, data_dict: dict):
 
     return extracted_data
 
+
+# Main Scrape Function (Where it all starts)
+# ====================================================================================
 async def scrape_with_playwright(start_url: str,info_data: dict, lor: list, **kwargs):
     
     if lor is None:
@@ -291,16 +259,6 @@ async def scrape_with_playwright(start_url: str,info_data: dict, lor: list, **kw
                 page = file.read()
             soup = BeautifulSoup(page, 'html.parser')
             # ===============================================================================
-
-            extracted_data = {
-                'reviewer_names': [],
-                'reviewer_ids': [],
-                'review_titles': [],
-                'review_bodies': [],
-                'review_ratings': [],
-                'review_dates': [],
-                'reviewer_accounts': []
-            }
 
             # Extracting Content
             # ==============================================================================
@@ -379,61 +337,6 @@ async def scrape_with_playwright(start_url: str,info_data: dict, lor: list, **kw
             break
             # ==============================================================================
 
-            # break
-            # Cleaning Content
-            # ==============================================================================
-            # reviews = data_cleaning(extracted_content, html_content, **kwargs)
-
-            # if reviews != None:
-            #     for review in reviews:
-            #         review_id = review["Reviewer's ID"]
-            #         parts = review_id.split('-')
-            #         review["Reviewer's ID"] = f"{parts[-1]}"
-            #         review["Customer Reivew Link"] = f"https://www.amazon.com/product-review/{parts[1]}"
-            #         review['Reviewer Link'] = f"https://www.amazon.com{review['Reviewer Link'].rstrip('.')}"
-            #         review['Info'] = info_data
-
-            #     lor.extend(reviews)
-            # else:
-            #     pass #move on to paginition, will skip review of this page
-
-            # ==============================================================================
-            # Paginition (Works)
-            # ==============================================================================
-            # async with async_playwright() as p:
-
-            #     # Variables for Paginiton
-            #     # =======================
-            #     max_pages = 2
-            #     page_count = 0
-            #     # =======================
-
-            #     soup = BeautifulSoup(page_source, 'html.parser')
-            #     next_button = soup.select_one('li.a-last a')
-            #     print(next_button)
-            #     if page_count >= max_pages:
-            #         # limit to only scrape a maximum of 2 pages per product
-            #         print("Max 2 Pages Scraped")
-            #         break
-            #     else:
-            #         if next_button and 'href' in next_button.attrs:
-            #             next_page_url = 'https://www.amazon.com' + next_button['href']
-            #             url = next_page_url 
-            #             print("URL PRINTING")
-            #             print("------------")
-            #             print(url)
-            #             print("------------")
-            #             time.sleep(30)
-            #             page_count = page_count + 1
-            #             if page_count >= max_pages:
-            #                 # limit to only scrape a maximum of 2 pages per product
-            #                 print("Max 2 Pages Scraped")
-            #                 break
-            #         else:
-            #             # No more pages to scrape, break the loop
-            #             print("No more pages to scrape.")
-            #             break
-            # ==============================================================================
     await browser.close()
     
 
@@ -444,8 +347,11 @@ async def scrape_with_playwright(start_url: str,info_data: dict, lor: list, **kw
     else:
         print("Unable To Extract Content from Product")
     # ====================================================
+# ====================================================================================
 
-# Main Script
+
+
+# Main Loop
 # ========================================================
 for base_url, asins, pdt_names, sku in zip(amazon_links, asins, pdt_names, sku):
 

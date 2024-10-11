@@ -16,75 +16,19 @@ openai_model = "gpt-4o-mini-2024-07-18" # can change to gpt-4 models
 token_limit = 2000
 # =================================================================
 
+# Loading of API & Setting up of LLM
+# =================================================================
 load_dotenv()
 openai_api_key = os.getenv('OPENAI_API_KEY')
 llm = ChatOpenAI(temperature=0, model=openai_model,
                  openai_api_key=openai_api_key, verbose=True, streaming=True,
                  max_tokens=token_limit)
+# =================================================================
 
 
-# chat prompt
+
+# Main Prompt 
 # ======================================================================================================
-# chat_prompt = PromptTemplate( 
-#             template= """
-#             Please extract the review content from the provided web content according to the following guidelines. Take your time to ensure all reviews are accurately extracted.
-
-#             Guidelines:
-#             1. Extract the following details for each review:
-#             - Reviewer's ID (E.g, customer_review-R259E3F8KQB7K7)
-#             - Reviewer's name
-#             - Reviewer Link (Link to his/her Amazon Account)
-#             - Rating (out of 5 stars)
-#             - Review title (The title of the review)
-#             - Review date
-#             - Review description (The actual reviewer's inputs)
-#             2. Duplicates: Be mindful of duplicate statements, especially in review descriptions. Ensure only one instance of each unique statement is extracted.
-#             3. Please keep the extracted reviews the way they are, 
-#                ###
-#                DO NOT CREATE YOUR OWN INPUTS (IMPORTANT!!).
-#                ###
-#             4. 
-#                 ###
-#                 Please ensure that all relevant details are included without interruption.
-#                 ###
-#             5.
-#                 ###
-#                 ONLY TAKE REVIEWS REVIEWED IN THE UNITED STATES (US) IGNORE THE OTHER COUNTRIES
-#                 ###
-#             Format the extracted reviews as JSON. Here is the web content to analyze:
-#             ###
-#             {content}
-#             ###
-#             """,
-#             input_variables=["content"],
-#         )
-
-# chat_prompt = PromptTemplate(
-#             template= """ 
-#             Please create a python script (.py) to
-#             extract the review content from the provided web content (in HTML) according to the following guidelines. 
-#             Take your time to ensure all reviews are accurately extracted.
-
-#             Guidelines:
-#              1. Extract the following details for each review:
-#              - Reviewer's ID (E.g, customer_review-R259E3F8KQB7K7),
-#              - Reviewer's name,
-#              - Reviewer Link (Link to his/her Amazon Account),
-#              - Rating (out of 5 stars),
-#              - Review title (The title of the review),
-#              - Review date,
-#              - Review description (The actual reviewer's inputs).
-#              2.The script you generate should only be used under the library "from bs4 import BeautifulSoup".
-#              3.### ONLY TAKE REVIEWS REVIEWED IN THE UNITED STATES (US) IGNORE THE OTHER COUNTRIES! ###
-             
-#              Format the extracted reviews as JSON. Here is the web content (in HTML) to analyze:
-#              ###
-#              {content}
-#              ###
-#              """,
-#              input_variables=["content"],
-# )
-
 chat_prompt = PromptTemplate(
     template = """
                You are a web scraping expert and you are able to identify common selectors used for extracting information.
@@ -162,59 +106,24 @@ chat_prompt = PromptTemplate(
     input_variables=['content','dict'],
 )
 
-# chat_prompt = PromptTemplate(
-#     template = """
-#                 Please write a Python script using the BeautifulSoup library to extract review data from the provided HTML content. Ensure that all reviews are accurately extracted according to the following specifications:
-
-#                 ### Task Guidelines:
-#                 1. Extract the following details for each review:
-#                     - **Reviewer ID** (e.g., "customer_review-R259E3F8KQB7K7"),
-#                     - **Reviewer Name**,
-#                     - **Reviewer Profile Link** (URL to their Amazon account),
-#                     - **Rating** (out of 5 stars),
-#                     - **Review Title** (the headline of the review),
-#                     - **Review Date**,
-#                     - **Review Description** (the content of the review).
-
-#                 2. **Only include reviews** that were written **in the United States (US)**. Disregard reviews from any other countries.
-
-#                 3. The output should be **formatted as JSON**.
-
-#                 4. Use the **BeautifulSoup library** to parse and extract data from the HTML content.
-
-#                 5. **NO EXPLAINATIONS OR INSTRUCTIONS IS NEEDED** ### ONLY CODE ## **VERY IMPORTANT**.
-
-#                 6. **The HTML content will be given to you in a .txt file (/output/html_content.txt) which should be passed to the script**. Do not generate or hard-code the HTML in the script itself.
-
-#                 7. Generate Python code **without markdown formatting (no triple backticks or markdown language tags)**. ###Provide only plain Python code###.
-
-#                 Format the extracted reviews as JSON and **output the extracted content as a .json file**. Here is the web content (in HTML) to analyze:
-#                 ###
-#                 {content}
-#                 ###
-#                 **Please take your time to understand the structure of the content, finding patterns to extract the data effectively**.
-#                 Generate a Python script (.py file) based on these requirements.
-
-#                 ** PLEASE DO READ UP THE SCRIPT TEMPLATE GUIDE AS IT CONTAINS INFO ABOUT THE EXTRACTION FOLLOW IT TO A TEE **
-#                 ** PLEASE STUDY THE TAGS IN THE HTML CONTENT CAREFULLY DO NOT COME UP WITH YOUR OWN TAGS **
-#                 ** DONT USE DIVS TO FIND TAGS **
-#                 ###
-#                 {script_template}
-#                 ###
-
-#     """,
-#     input_variables=["content","script_template"],
-# )
 
 chain = LLMChain(llm=llm, prompt=chat_prompt)
 # ======================================================================================================
 
+
+# Get Dictionary Generated from Bot (OpenAI)
+# =================================================================
 def get_dict_from_langchain(content: str, **kwargs):
     with open("/output/dict_structure.py", 'r') as file:
         dict = file.read()
     response = chain.run(content=content,dict=dict)
     return response.strip()
+# =================================================================
 
+
+
+# Bot Dictionary Generation
+# =================================================================
 def write_dict(dict):
     try:
         with open("/output/temp_dict.py", "w") as f: #outputting on file for debugging purposes
@@ -224,7 +133,12 @@ def write_dict(dict):
     except Exception as e:
         results = f"Error: {e}"
         return results
+# =================================================================
 
+
+
+# Main Dictionary Function
+# =================================================================
 def main_dict_changes(content: str, **kwargs):
     print("Generating dict using LangChain...")
     dict_to_append = get_dict_from_langchain(content, **kwargs)
@@ -232,59 +146,4 @@ def main_dict_changes(content: str, **kwargs):
     dict_main = write_dict(dict_to_append)
     # print(dict_main)
     return dict_main
-
-
-
-# def get_code_from_langchain(content: str, **kwargs):
-#     """
-#     The `extract` function takes in a string `content` and additional keyword arguments, and returns the
-#     extracted data based on the provided schema.
-#     """
-#     # script for openai to be of use to follow as a guide
-#     with open("/output/script_structure.py", 'r') as file:
-#         script_template = file.read()
-
-#     response = chain.run(content=content,dict=dict, schema=kwargs["schema"])
-#     return response.strip()
-
-# def execute_code(code, timeout=10):
-#     with open("/output/temp_code.py", "w") as f:
-#         f.write(code)
-#     try:
-#         result = subprocess.run([sys.executable, "/output/temp_code.py"], capture_output=True, text=True, check=True, timeout=timeout)
-#         print("No Error Received...")
-#         print("Executed Sucessfully")
-#         return result.stdout, False  # No error
-#     except subprocess.CalledProcessError as e:
-#         print("Error Received...")
-#         return e.stdout + e.stderr, True  # There was an error
-#     except subprocess.TimeoutExpired:
-#         print("Execution Timed Out...")
-#         return "Execution timed out.", True  # Execution timed out
-    
-# def run_extraction(content: str, **kwargs):
-#     error_exists = True
-#     retry_count = 0
-#     max_retries = 2  # Retry a maximum of 2 times
-
-#     while error_exists:
-#         print("Generating code using LangChain...")
-#         code = get_code_from_langchain(content, **kwargs)
-#         print("Executing the code and checking for errors...")
-
-#         output, error_exists = execute_code(code)
-#         if error_exists:
-#             print(f"Errors found on attempt {retry_count + 1}, output:\n", output)
-#             with open("/output/temp_code.py", "r") as file:
-#                 script = file.read()
-#             new_content = f"The following script was generated by you: ###\n{script}\n### But the following error occurred: ###\n{output}\n### Please **fix the error**."
-#             retry_count += 1
-#             # Regenerate the code using the new prompt with the script and error
-#             content = new_content
-#         else:
-#             print("Execution successful! Output:\n", output)
-#             return output
-        
-#     if error_exists:
-#         print(f"Max retries reached ({max_retries}). Still facing errors.")
-#         return output  # Returning the last output after retries
+# =================================================================
