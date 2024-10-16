@@ -19,7 +19,8 @@ token_limit = 2000
 # Loading of API & Setting up of LLM
 # =================================================================
 load_dotenv()
-openai_api_key = os.getenv('OPENAI_API_KEY')
+# openai_api_key = os.getenv('OPENAI_API_KEY')
+openai_api_key = os.environ.get('OPENAI_API_KEY')
 llm = ChatOpenAI(temperature=0, model=openai_model,
                  openai_api_key=openai_api_key, verbose=True, streaming=True,
                  max_tokens=token_limit)
@@ -40,6 +41,7 @@ chat_prompt = PromptTemplate(
 
                raw html:
                ###
+               <span class="a-fixed-left-grid-col a-col-left">Write a review</span>
                <span id='23'>Reviewer Name</span>
                <span id="review-star-rating">5.0 out of 5 stars</span>
                <span id="review-star-rating">4.0 out of 5 stars</span>

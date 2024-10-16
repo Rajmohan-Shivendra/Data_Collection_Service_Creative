@@ -1,0 +1,74 @@
+<option data-a-css-class="star-filter-option" data-reftag="cm_cr_arp_d_viewopt_sr" data-reviews-state-param='{"pageNumber":"1","filterByStar":"all_stars"}' selected="" value="all_stars">すべての星</option>
+<option data-a-css-class="star-filter-option" data-reftag="cm_cr_arp_d_viewopt_sr" data-reviews-state-param='{"pageNumber":"1","filterByStar":"five_star"}' value="five_star">星5つのみ</option>
+<option data-a-css-class="star-filter-option" data-reftag="cm_cr_arp_d_viewopt_sr" data-reviews-state-param='{"pageNumber":"1","filterByStar":"four_star"}' value="four_star">星4つのみ</option>
+<option data-a-css-class="star-filter-option" data-reftag="cm_cr_arp_d_viewopt_sr" data-reviews-state-param='{"pageNumber":"1","filterByStar":"three_star"}' value="three_star">星3つのみ</option>
+<option data-a-css-class="star-filter-option" data-reftag="cm_cr_arp_d_viewopt_sr" data-reviews-state-param='{"pageNumber":"1","filterByStar":"two_star"}' value="two_star">星2つのみ</option>
+<option data-a-css-class="star-filter-option" data-reftag="cm_cr_arp_d_viewopt_sr" data-reviews-state-param='{"pageNumber":"1","filterByStar":"one_star"}' value="one_star">星1つのみ</option>
+<option data-a-css-class="star-filter-option" data-reftag="cm_cr_arp_d_viewopt_sr" data-reviews-state-param='{"pageNumber":"1","filterByStar":"positive"}' value="positive">肯定的なレビュー</option>
+<option data-a-css-class="star-filter-option" data-reftag="cm_cr_arp_d_viewopt_sr" data-reviews-state-param='{"pageNumber":"1","filterByStar":"critical"}' value="critical">批判的なレビュー</option>
+<a href="">メインコンテンツにスキップ</a>
+<a href="/ref=nav_logo">.co.jp</a>
+<a href="">お届け先シンガポール共和国</a>
+<a href="/customer-preferences/edit?ie=UTF8&preferencesReturnUr...">JP</a>
+<a href="https://www.amazon.co.jp/ap/signin?openid.pape.max_aut...">こんにちは, ログインアカウント＆リスト</a>
+<a href="/gp/css/order-history?ref_=nav_orders_first">返品もこちら注文履歴</a>
+<a href="javascript: void(0)">すべて</a>
+<a href="/Amazon%E3%83%9D%E3%82%A4%E3%83%B3%E3%83%88/b/?ie=UTF8...">Amazonポイント</a>
+<a href="/AmazonGlobal-AmazonJapan/b/?ie=UTF8&node=3534638051&r...">AmazonGlobal</a>
+<a href="/ranking?type=top-sellers&ref_=nav_cs_bestsellers">ランキング</a>
+<a href="/stores/node/6105569051/?ref_=nav_cs_amazonbasics">Amazon Basics</a>
+<a href="/gp/goldbox?ref_=nav_cs_gb">タイムセール</a>
+<a href="/ranking?type=new-releases&ref_=nav_cs_newreleases">新着商品</a>
+<a href="/%E6%9C%AC-%E6%9B%B8%E7%B1%8D-%E9%80%9A%E8%B2%A9/b/?ie...">本</a>
+<a href="/PC%E5%91%A8%E8%BE%BA%E6%A9%9F%E5%99%A8-%E3%83%91%E3%8...">パソコン・周辺機器</a>
+<a href="/%E3%83%9B%E3%83%BC%E3%83%A0-%E3%82%AD%E3%83%83%E3%83%...">ホーム&キッチン</a>
+<a href="/%E3%83%89%E3%83%A9%E3%83%83%E3%82%B0%E3%82%B9%E3%83%8...">ドラッグストア</a>
+<a href="/gp/gc?ref_=nav_cs_gc">ギフトカード</a>
+<a href="/gcx/-/gfhz/?ref_=nav_cs_giftfinder">ギフトランキング</a>
+<a href="/b/?_encoding=UTF8&ld=AZJPSOASL&node=2490612051&ref_=n...">Amazonで売る</a>
+<a href="/%E3%83%98%E3%83%AB%E3%83%97/b/?ie=UTF8&node=642938&re...">カスタマーサービス</a>
+<a href="/Creative-1080p-%E3%82%AA%E3%83%B3%E3%83%A9%E3%82%A4%E...">すべてのオプションを見る</a>
+<a href="/gp/help/customer/contact-us/ref=cm_cr_arp_d_cs?ie=UTF...">カスタマーサービスが必要ですか？</a>
+<a href="/Creative-1080p-%E3%82%AA%E3%83%B3%E3%83%A9%E3%82%A4%E...">Creative Live! Cam Sync 1080p V2 テレワーク オンライン会議 プライバシー用レンズカバー付 Webカメラ...の商品詳細を表示</a>
+<a href="javascript:void(0)">トップへ戻る</a>
+<a href="/gp/browse.html?node=236032011&ref_=footer_gw_m_b_care...">採用情報</a>
+<a href="https://blog.aboutamazon.jp/?utm_source=gateway&utm_me...">About Amazon</a>
+<a href="https://amazon-press.jp">Newsroom</a>
+<a href="/gp/browse.html?node=2038754051&ref_=footer_corpres">環境への取り組み</a>
+<a href="/gp/browse.html?node=2761807051&ref_=footer_gw_m_b_our...">社会貢献・地域活動</a>
+<a href="/gp/browse.html?node=3534638051&ref_=footer_global">AmazonGlobal</a>
+<a href="https://www.amazon.science">Amazon Science</a>
+<a href="https://services.amazon.co.jp/services/retail-footer-l...">Amazonで販売する</a>
+<a href="https://services.amazon.co.jp/services/fulfillment-by-...">フルフィルメント by Amazon</a>
+<a href="https://services.amazon.co.jp/services/seller-fulfille...">マケプレプライム</a>
+<a href="https://services.amazon.co.jp/services/amazon-business...">Amazonビジネスで法人販売</a>
+<a href="https://pay.amazon.com/jp/merchant?ld=AZJPAPAFooter">Amazon Pay（決済サービス）</a>
+<a href="https://affiliate.amazon.co.jp/">アソシエイト（アフィリエイト）</a>
+<a href="https://advertising.amazon.co.jp/?ref_=footer_ad">Amazonで広告掲載をする</a>
+<a href="https://kdp.amazon.co.jp/?ref=footer_publishing">Amazonで出版</a>
+<a href="/b/?node=2293760051&ld=AZJPSOAMM&ref_=footer_seeall">Amazon出品の詳細</a>
+<a href="/gp/browse.html?node=2632478051&ref_=footer_point">Amazonポイント</a>
+<a href="/gp/gc?ref_=footer_gc">Amazonギフトカード</a>
+<a href="/gp/browse.html?node=3036192051&plattr=JBCBCCFT&ref_=f...">Amazon Mastercard</a>
+<a href="/gp/browse.html?node=2113286051&plattr=JBCCMPFT&ref_=f...">クレジットカード＆保険</a>
+<a href="https://www.amazon.co.jp/gp/shopwithpoints/marketing.h...">パートナーポイントプログラム</a>
+<a href="/gp/browse.html?node=3491801051&ref_=footer_topup_jp">Amazonギフトカードチャージタイプ</a>
+<a href="/gp/help/customer/display.html?nodeId=642946&ref_=foot...">すべての支払い方法を見る</a>
+<a href="/gp/help/customer/display.html?nodeId=GDFU3JS5AL6SYHRD...">新型コロナウイルス関連</a>
+<a href="/gp/help/customer/display.html?nodeId=642982&ref_=foot...">配送料と配送情報</a>
+<a href="/gp/subs/primeclub/signup/main.html?ref_=footer_prime">Amazon プライム</a>
+<a href="/gp/css/returns/homepage.html?ref_=footer_returns">商品の返品・交換</a>
+<a href="/hz/mycd/myx?ref_=footer_myk">コンテンツと端末の管理</a>
+<a href="/gp/help/customer/display.html?nodeId=508510&ref_=foot...">ヘルプ</a>
+<a href="https://advertising.amazon.co.jp/?ref=footer_advtsing_...">Amazon Advertising商品の露出でお客様の関心と反応を引き出す</a>
+<a href="https://www.audible.co.jp/?source_code=AMAAMZWPCPC0908...">Audible（オーディブル）「聴く」読書会員なら聴き放題</a>
+<a href="https://aws.amazon.com/jp/?sc_channel=EL&sc_campaign=J...">アマゾン ウェブ サービス（AWS）クラウドコンピューティングサービス</a>
+<a href="/gp/browse.html?node=2761990051&ref_=footer_wrhsdls">Amazonアウトレット訳あり商品をお手頃価格で販売</a>
+<a href="/gp/browse.html?node=5695748051&ref_=JP_AB_ONS_GW_FOO">Amazonビジネス（法人購買）請求書払い法人価格・数量割引</a>
+<a href="/gp/browse.html?node=3534638051&ref_=footer_amazonglob...">AmazonGlobal65か国/地域以上への海外配送がより簡単に</a>
+<a href="https://www.shopbop.com/jp/welcome">Shopbop世界中の厳選されたファッションアイテム</a>
+<a href="/gp/help/customer/display.html?nodeId=643006&ref_=foot...">利用規約</a>
+<a href="/gp/help/customer/display.html?nodeId=643000&ref_=foot...">プライバシー規約</a>
+<a href="/gp/help/customer/display.html?nodeId=201047280&ref_=f...">パーソナライズド広告規約</a>
+<a href="/gp/help/customer/display.html?nodeId=GFYCLDQPMCA6QNGR...">各種規約</a>
+<a href="/gp/help/customer/display.html?nodeId=202008070">特定商取引法に基づく表示</a>

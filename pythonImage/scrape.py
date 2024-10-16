@@ -7,7 +7,41 @@ from playwright.async_api import async_playwright
 from html_chunking import get_html_chunks
 import re
 from collections import Counter
+import os
+from deep_translator import GoogleTranslator
+from dateutil import parser
 max_tokens = 100000
+
+# country codes
+# =========================
+country_dict = {
+    'es': 'Spain',
+    'us': 'United States',
+    'fr': 'France',
+    'de': 'Germany',
+    'jp': 'Japan',
+    'se': 'Sweden',
+    'it': 'Italy',
+    'nl': 'Netherlands',
+    'ca': 'Canada',
+    'uk': 'United Kingdom',
+}
+# =========================
+
+
+# Date Patterns
+# ================================
+date_patterns = [
+    r'\b\d{1,2}/\d{1,2}/\d{4}\b',         # Matches 19/12/2021, 12/19/2021, etc.
+    r'\b\d{1,2}-\d{1,2}-\d{4}\b',         # Matches 19-12-2021, 12-19-2021, etc.
+    r'\b\d{1,2} \w+ \d{4}\b',             # Matches 19 December 2021
+    r'\b\w+ \d{1,2}, \d{4}\b',            # Matches December 19, 2021
+    r'\b\w+ \d{1,2} \d{4}\b',             # Matches December 19 2021
+    r'\w+ \d{1,2}, \d{4}',
+]
+# ================================
+
+
 # =================================================================
 
 
@@ -122,7 +156,7 @@ def optimal_tag_finder_v1(page_source):
 def contains_unwanted_keywords(id_or_class: str) -> bool:
     unwanted_keywords = ['row','column','nav', 'footer', 'header', 'shortcut',
                          'spacing','button','a-list-item','a-color-state','cr',
-                         'block','declarative','disabled','vote','col']
+                         'block','declarative','disabled','vote','foreign','cmps']
     return any(keyword in id_or_class for keyword in unwanted_keywords)
 # =================================================================
 
@@ -150,7 +184,7 @@ def is_too_complex(element) -> bool:
 # to feed the openai, while also retaining their parent's
 # attributes, (i.e, Class, ID, Data-hook)
 # =================================================================
-def extract_tags_with_html(html_content, tags: list[str]):
+def extract_tags_with_html(html_content, tags: list[str], cc:str):
     """
     This function takes HTML content and a list of tags, 
     returning the HTML for those tags. 
@@ -161,11 +195,17 @@ def extract_tags_with_html(html_content, tags: list[str]):
     """
     soup = BeautifulSoup(html_content, 'html.parser')
     html_parts = []
-    pattern = r"Reviewed in the United States on \w+ \d{1,2}, \d{4}"
+    # pattern = r"Reviewed in the United States on \w+ \d{1,2}, \d{4}"
+    pattern = f"{country_dict[cc]} on "
+    combined_pattern = pattern + '(' + '|'.join(date_patterns) + ')'
 
     for tag in tags:
         elements = soup.find_all(tag)
         for element in elements:
+            element_text = element.get_text(strip=True)
+
+            if not element_text:  
+                continue
 
             if tag == 'a':
                 # print("a has been found")
@@ -176,11 +216,6 @@ def extract_tags_with_html(html_content, tags: list[str]):
                 continue
 
             if is_too_complex(element):
-                continue
-
-            element_text = element.get_text(strip=True)
-
-            if not element_text:  
                 continue
 
             parent = element.parent
@@ -198,10 +233,16 @@ def extract_tags_with_html(html_content, tags: list[str]):
                  element_text.endswith('%'))):
                 continue
             
-            if re.search(pattern, element_text):# to find review dates
-                 new_tag = f'<{tag} id="review-date">{element_text}</{tag}>'
-                 html_parts.append(new_tag)
-                 continue
+            if element_text:
+                translated_result = GoogleTranslator(source='auto', target='en').translate(element_text)
+                if translated_result:
+                # if re.search(pattern, element_text):# to find review dates
+                    if re.search(combined_pattern, translated_result): 
+                        new_tag = f'<{tag} id="review-date">{element_text}</{tag}>'
+                        html_parts.append(new_tag)
+                        continue
+                else: pass
+            else: pass
 
             if parent_data_hook:
                 new_tag = f'<{tag} id="{parent_data_hook}">{element_text}</{tag}>'
@@ -232,7 +273,7 @@ def remove_tags_with_attribute(soup: BeautifulSoup, keywords: list[str]):
 
 # Main Function
 # =================================================================
-async def ascrape_playwright(page_source) -> str:
+async def ascrape_playwright(page_source, cc:str) -> str:
     """
     An asynchronous Python function that uses Playwright to scrape
     content from a given URL, extracting specified HTML tags and removing unwanted tags and unnecessary
@@ -240,8 +281,12 @@ async def ascrape_playwright(page_source) -> str:
     """
     print("Started scraping...")
     results = ""
-    tags = optimal_tag_finder_v1(page_source) #returns a list
-    optimal_tag = tags[0]
+    # if os.path.exists('/output/cache_approv.txt'):
+        # tags = ['span','a'] # assume its gonna be span and a
+    # else: # else perform main optimal tag finder function
+    tags = optimal_tag_finder_v1(page_source) # returns a list
+
+    # optimal_tag = tags[0]
     print("=================================")
     print("Tags Sucessfully Found!")
     print("=================================")
@@ -252,14 +297,19 @@ async def ascrape_playwright(page_source) -> str:
     try:
         # Only use the Body contents of the html page
         soup = BeautifulSoup(page_source, 'html.parser')
-        remove_tags_with_attribute(soup, ['average-star-rating','cm_cr-rvw_summary','a-list-item','a-color-state','cr-product-byline'])
+        remove_tags_with_attribute(soup, ['a-fixed-left-grid-col','average-star-rating',
+                                          #'a-fixed-right-grid-col',
+                                          'cm_cr-rvw_summary','a-list-item',
+                                          'a-color-state','cr-product-byline',
+                                          'cmps-review-star-rating'])
+        
         page_source = str(soup.body)
 
         # Chunking and Processing the html content | Max_Tokens is 2000
         # ===================================================================
         chunks = get_html_chunks(page_source, max_tokens, is_clean_html=True,attr_cutoff_len=54)
 
-        extracted_content = [extract_tags_with_html(chunk, tags) for chunk in chunks]
+        extracted_content = [extract_tags_with_html(chunk, tags, cc) for chunk in chunks]
 
         results = ' '.join(extracted_content)
         results = re.sub(r'\n+', '\n', results).strip()
